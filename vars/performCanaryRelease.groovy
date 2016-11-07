@@ -14,16 +14,20 @@ def call(body) {
     }
 
     def flow = new io.fabric8.Fabric8Commands()
+    def utils = new io.fabric8.Utils()
 
     env.setProperty('VERSION',newVersion)
 
-    kubernetes.image().withName("${env.JOB_NAME}").build().fromPath(".")
-    kubernetes.image().withName("${env.JOB_NAME}").tag().inRepository("${env.FABRIC8_DOCKER_REGISTRY_SERVICE_HOST}:${env.FABRIC8_DOCKER_REGISTRY_SERVICE_PORT}/${env.KUBERNETES_NAMESPACE}/${env.JOB_NAME}").withTag(newVersion)
+    def namespace = utils.getNamespace()
+    def newImageName = "${env.FABRIC8_DOCKER_REGISTRY_SERVICE_HOST}:${env.FABRIC8_DOCKER_REGISTRY_SERVICE_PORT}/${namespace}/${env.JOB_NAME}:${newVersion}"
 
-    if (flow.isSingleNode()){
-        echo 'Running on a single node, skipping docker push as not needed'
-    } else {
-        kubernetes.image().withName("${env.FABRIC8_DOCKER_REGISTRY_SERVICE_HOST}:${env.FABRIC8_DOCKER_REGISTRY_SERVICE_PORT}/${env.KUBERNETES_NAMESPACE}/${env.JOB_NAME}").push().withTag(newVersion).toRegistry()
+    container('client') {
+      sh "docker build -t ${newImageName} ."
+      if (flow.isSingleNode()){
+          sh "echo 'Running on a single node, skipping docker push as not needed'"
+      } else {
+          sh "docker push ${newImageName}"
+      }
     }
 
     return newVersion
