@@ -6,10 +6,15 @@ def call(body) {
     body.delegate = config
     body()
 
-    def rc = """
+    def flow = new io.fabric8.Fabric8Commands()
+
+    def expose = config.exposeApp ?: 'true'
+    def kind = flow.isOpenShift() ? 'DeploymentConfig' : 'Deployment'
+
+    def list = """
     {
       "apiVersion" : "v1",
-      "kind" : "Template",
+      "kind" : "List",
       "labels" : { },
       "metadata" : {
         "annotations" : {
@@ -24,7 +29,6 @@ def call(body) {
         "apiVersion": "v1",
         "metadata": {
             "name": "${env.JOB_NAME}",
-            "creationTimestamp": null,
             "labels": {
                 "component": "${env.JOB_NAME}",
                 "container": "${config.label}",
@@ -62,7 +66,7 @@ def call(body) {
         }
     },
     {
-        "kind": "ReplicationController",
+        "kind": "${kind}",
         "apiVersion": "v1",
         "metadata": {
             "name": "${env.JOB_NAME}",
@@ -74,7 +78,7 @@ def call(body) {
                 "group": "quickstarts",
                 "project": "${env.JOB_NAME}",
                 "provider": "fabric8",
-                "expose": "true",
+                "expose": "${expose}",
                 "version": "${config.version}"
             },
             "annotations": {
@@ -93,7 +97,6 @@ def call(body) {
             },
             "template": {
                 "metadata": {
-                    "creationTimestamp": null,
                     "labels": {
                         "component": "${env.JOB_NAME}",
                         "container": "${config.label}",
@@ -126,26 +129,19 @@ def call(body) {
                                     }
                                 }
                             ],
-                            "resources": {},
-                            "terminationMessagePath": "/dev/termination-log",
-                            "imagePullPolicy": "IfNotPresent",
-                            "securityContext": {}
+                            "imagePullPolicy": "IfNotPresent"
                         }
                     ],
                     "restartPolicy": "Always",
-                    "terminationGracePeriodSeconds": 30,
-                    "dnsPolicy": "ClusterFirst",
-                    "securityContext": {}
+                    "terminationGracePeriodSeconds": 10,
+                    "dnsPolicy": "ClusterFirst"
                 }
             }
-        },
-        "status": {
-            "replicas": 0
         }
     }]}
     """
 
-    echo 'using Kubernetes resources:\n' + rc
-    return rc
+    echo 'using Kubernetes resources:\n' + list
+    return list
 
   }
