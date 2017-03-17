@@ -21,13 +21,19 @@ def call(body) {
     sh "mvn org.codehaus.mojo:versions-maven-plugin:2.2:set -U -DnewVersion=${config.version}"
     sh "mvn clean -e -U deploy -Dmaven.test.skip=${skipTests} ${profile}"
 
-    if (flow.hasService("bayesian")) {
-        try {
-          sh 'mvn io.github.stackinfo:stackinfo-maven-plugin:0.1:prepare'
-          def response = bayesianAnalysis()
-        } catch (err) {
-          echo "Unable to run Bayesian analysis: ${err}"
-        }
+    if (flow.hasService("bayesian-link")) {
+        // try {
+            sh 'mvn io.github.stackinfo:stackinfo-maven-plugin:0.2:prepare'
+            //bayesianUrl = flow.getServiceURL('bayesian-link') //'http://api-bayesian.dev.rdu2c.fabric8.io/'
+            def response = bayesianAnalysis url: 'http://bayesian-link'
+            if (response.success) {
+                def utils = new io.fabric8.Utils()
+                def buildName = utils.getValidOpenShiftBuildName()
+                utils.addAnnotationToBuild(buildName, 'fabric8.io/bayesian.analysisUrl', response.getAnalysisUrl())
+            }
+        // } catch (err) {
+        //     echo "Unable to run Bayesian analysis: ${err}"
+        // }
     }
 
     //try sonarQube

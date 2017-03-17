@@ -489,10 +489,20 @@ def hasService(String name) {
 }
 
 @NonCPS
-def getServiceURL(String serviceName, String namespace = null, String protocol = "http", boolean external = true) {
+def getServiceURL(String serviceName) {
+  String namespace = null
+  String protocol = "http"
+  boolean external = true
   KubernetesClient kubernetes = new DefaultKubernetesClient()
   if (namespace == null) namespace = kubernetes.getNamespace()
-  return KubernetesHelper.getServiceURL(kubernetes, serviceName, namespace, protocol, external)
+  try {
+    def name = KubernetesHelper.getServiceURL(kubernetes, serviceName, namespace, protocol, external)
+  } catch (err){
+    echo "${err}"
+    error "${err}"
+
+  }
+
 }
 
 def isOpenShiftS2I() {
