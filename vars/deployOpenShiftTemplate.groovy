@@ -10,6 +10,7 @@ def call(Map parameters = [:], body) {
     def inheritFrom = parameters.get('inheritFrom', 'base')
     def jnlpImage = (flow.isOpenShift()) ? 'fabric8/jenkins-slave-base-centos7:0.0.1' : 'jenkinsci/jnlp-slave:2.62'
     def openshiftConfigSecretName = parameters.get('openshiftConfigSecretName', 'remote-openshift-config')
+    def routeCertsSecretName = parameters.get('routeCertsSecretName', 'default-route-certs')
     def cloud = flow.getCloudConfig()
 
     if (flow.isOpenShift()) {
@@ -20,6 +21,7 @@ def call(Map parameters = [:], body) {
                          envVars: [[key: 'TERM', value: 'dumb'],[key: 'KUBECONFIG', value: '/root/home/.oc/cd.conf']]]
                 ],
                 volumes: [
+                        secretVolume(secretName: routeCertsSecretName, mountPath: '/root/home/.routeCerts'),
                         secretVolume(secretName: openshiftConfigSecretName, mountPath: '/root/home/.oc')
                 ]) {
             body()
@@ -31,6 +33,7 @@ def call(Map parameters = [:], body) {
                          envVars: [[key: 'TERM', value: 'dumb'],[key: 'KUBECONFIG', value: '/root/home/.oc/cd.conf']]]
                 ],
                 volumes: [
+                        secretVolume(secretName: routeCertsSecretName, mountPath: '/root/home/.routeCerts'),
                         secretVolume(secretName: openshiftConfigSecretName, mountPath: '/root/home/.oc')
                 ]) {
             body()
