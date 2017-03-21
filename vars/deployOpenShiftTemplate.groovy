@@ -22,6 +22,7 @@ def call(Map parameters = [:], body) {
                 ],
                 volumes: [
                         secretVolume(secretName: routeCertsSecretName, mountPath: '/root/home/.routeCerts'),
+                        secretVolume(secretName: 'jenkins-hub-api-token', mountPath: '/home/jenkins/.apitoken'),
                         secretVolume(secretName: openshiftConfigSecretName, mountPath: '/root/home/.oc')
                 ]) {
             body()
@@ -34,6 +35,7 @@ def call(Map parameters = [:], body) {
                 ],
                 volumes: [
                         secretVolume(secretName: routeCertsSecretName, mountPath: '/root/home/.routeCerts'),
+                        secretVolume(secretName: 'jenkins-hub-api-token', mountPath: '/home/jenkins/.apitoken'),
                         secretVolume(secretName: openshiftConfigSecretName, mountPath: '/root/home/.oc')
                 ]) {
             body()
