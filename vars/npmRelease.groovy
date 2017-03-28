@@ -19,9 +19,13 @@ def call(body) {
 
     String npmToken = readFile '/home/jenkins/.npm-token/token'
     String ghToken = readFile '/home/jenkins/.apitoken/hub'
+
+    input id: 'Proceed', message: "ok?"
+
     wrap([$class: 'MaskPasswordsBuildWrapper', varPasswordPairs: [
         [password: npmToken, var: 'NPM_PASSWORD'],
         [password: ghToken, var: 'GH_PASSWORD']]]) {
+
 
         try {
             sh """
