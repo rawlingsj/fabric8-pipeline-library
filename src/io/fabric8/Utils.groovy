@@ -12,6 +12,7 @@ import io.fabric8.openshift.api.model.TagEvent
 import io.fabric8.openshift.client.DefaultOpenShiftClient
 import io.fabric8.openshift.client.OpenShiftClient
 import io.fabric8.Fabric8Commands
+import io.fabric8.kubernetes.api.environments.Environments
 
 //
 //IMAGE_STREAM_TAG_RETRIES = 15;
@@ -20,13 +21,7 @@ import io.fabric8.Fabric8Commands
 @NonCPS
 def environmentNamespace(environment) {
   KubernetesClient kubernetes = new DefaultKubernetesClient()
-  
-  def ns = getNamespace()
-  if (ns.endsWith("-jenkins")){
-    ns = ns.substring(0, ns.lastIndexOf("-jenkins"))
-  }
-
-  return ns + "-${environment}"
+  return Environments.namespaceForEnvironment(kubernetes,getNamespace(),environment)
 }
 
 @NonCPS
