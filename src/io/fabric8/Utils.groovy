@@ -260,4 +260,20 @@ def getExistingPR(project, pair){
 
     return null
 }
+
+def getDownstreamProjectOverrides(project, id, downstreamProjects, botName = '@fabric8cd'){
+  def flow = new Fabric8Commands()
+
+  def comments = flow.getIssueComments(project, id)
+  Collections.reverse(comments)
+  for (comment in comments) {
+    echo comment.body
+    def text = comment.body.trim()
+    def match = 'CI downstream projects'
+    if (text.startsWith(botName)){
+      echo 'found some overrides'
+    }
+  }
+
+}
 return this
