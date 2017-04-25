@@ -43,19 +43,23 @@ def call(body) {
             utils.addAnnotationToBuild('fabric8.io/jenkins.changeUrl', changeUrl)
         }
 
-        // if (flow.hasService("bayesian-link")) {
-        //     try {
-        //         sh 'mvn io.github.stackinfo:stackinfo-maven-plugin:0.2:prepare'
-        //         def response = bayesianAnalysis url: 'https://bayesian-link'
-        //         if (response.success) {
-        //             utils.addAnnotationToBuild('fabric8.io/bayesian.analysisUrl', response.getAnalysisUrl())
-        //         } else {
-        //             error "Bayesian analysis failed ${response}"
-        //         }
-        //     } catch (err) {
-        //         echo "Unable to run Bayesian analysis: ${err}"
-        //     }
-        // }
+        
+        if (flow.hasService("bayesian-link")) {
+            try {
+                sh 'mvn io.github.stackinfo:stackinfo-maven-plugin:0.2:prepare'
+                sh 'ls -al target/stackinfo/poms/'
+                sh 'cat target/stackinfo/poms/pom.xml'
+
+                def response = bayesianAnalysis url: 'https://bayesian-link'
+                if (response.success) {
+                    utils.addAnnotationToBuild('fabric8.io/bayesian.analysisUrl', response.getAnalysisUrl())
+                } else {
+                    error "Bayesian analysis failed ${response}"
+                }
+            } catch (err) {
+                echo "Unable to run Bayesian analysis: ${err}"
+            }
+        }
     }
 
     //try sonarQube
