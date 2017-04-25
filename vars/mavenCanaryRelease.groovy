@@ -45,19 +45,20 @@ def call(body) {
 
         
         if (flow.hasService("bayesian-link")) {
+            def response
             try {
                 sh 'mvn io.github.stackinfo:stackinfo-maven-plugin:0.2:prepare'
-                sh 'ls -al target/stackinfo/poms/'
-                sh 'cat target/stackinfo/poms/pom.xml'
-                sh 'curl https://gist.githubusercontent.com/rawlingsj/999321998061bff24b7132ea3d5f0964/raw/0055e5bf64e14fab74b4c3ab8cbb5f19eef72b28/gistfile1.txt > target/stackinfo/poms/pom.xml'
-                def response = bayesianAnalysis url: 'https://bayesian-link'
+                response = bayesianAnalysis url: 'https://bayesian-link'
                 if (response.success) {
-                    utils.addAnnotationToBuild('fabric8.io/bayesian.analysisUrl', response.getAnalysisUrl())
+                    def analysisUrl = new String(response.getAnalysisUrl())
+                    utils.addAnnotationToBuild('fabric8.io/bayesian.analysisUrl', analysisUrl)
                 } else {
                     error "Bayesian analysis failed ${response}"
                 }
             } catch (err) {
                 echo "Unable to run Bayesian analysis: ${err}"
+            } finally {
+                response = null
             }
         }
     }
