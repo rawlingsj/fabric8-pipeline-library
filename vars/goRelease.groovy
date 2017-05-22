@@ -24,12 +24,12 @@ def call(body) {
         error 'no project defined'
     }
 
-    def buildPath = "/home/jenkins/go/src/github.com/${ghOrg}/${prj}"
+    def buildPath = "/home/jenkins/go/src/github.com/fabric8io/${prj}"
 
     sh "mkdir -p ${buildPath}"
 
     dir(buildPath) {
-        git "https://github.com/${ghOrg}/${prj}.git"
+        git "https://github.com/rawlingsj/${prj}.git"
 
         sh "git config user.email fabric8-admin@googlegroups.com"
         sh "git config user.name fabric8-release"
