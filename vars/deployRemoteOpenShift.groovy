@@ -9,7 +9,7 @@ def call(body) {
   def flow = new io.fabric8.Fabric8Commands()
 
   container(name: 'clients') {
-    sh "oc login ${config.url} --token=\$(cat /root/.oc/token) --insecure-skip-tls-verify=true"
+    sh "oc login ${config.url} --token=\$(cat /home/jenkins/.oc/token) --insecure-skip-tls-verify=true"
     try{
       sh 'oc delete project fabric8-test'
       waitUntil{

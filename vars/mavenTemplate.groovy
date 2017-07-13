@@ -13,7 +13,7 @@ def call(Map parameters = [:], body) {
 
     def cloud = flow.getCloudConfig()
 
-    if (flow.isOpenShift()) {
+    if (flow.isOpenShift() && !utils.isUseDockerSocket()) {
         podTemplate(cloud: cloud, label: label, inheritFrom: "${inheritFrom}", serviceAccount: 'jenkins', restartPolicy: 'OnFailure',
                 containers: [
                         [name: 'jnlp', image: "${jnlpImage}", args: '${computer.jnlpmac} ${computer.name}', workingDir: '/home/jenkins/',

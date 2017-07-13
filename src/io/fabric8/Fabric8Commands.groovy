@@ -646,7 +646,9 @@ def getUrlAsString(urlString) {
         scan = new Scanner(url.openStream(), "UTF-8")
         response = scan.useDelimiter("\\A").next()
     } finally {
-        scan.close()
+        if (scan){
+            scan.close()
+        }
     }
     return response
 }
