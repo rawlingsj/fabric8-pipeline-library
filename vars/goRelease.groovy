@@ -37,9 +37,9 @@ def call(body) {
 
         container(name: 'go') {
             stage ('build binary'){
-                sh 'chmod 600 /root/.ssh-git/ssh-key'
-                sh 'chmod 600 /root/.ssh-git/ssh-key.pub'
-                sh 'chmod 700 /root/.ssh-git'
+                sh 'chmod 600 /home/jenkins/.ssh-git/ssh-key'
+                sh 'chmod 600 /home/jenkins/.ssh-git/ssh-key.pub'
+                sh 'chmod 700 /home/jenkins/.ssh-git'
 
                 // if you want a nice N.N.N version number then use a VERSION file, if not default to short commit sha
                 if (fileExists('version/VERSION')){

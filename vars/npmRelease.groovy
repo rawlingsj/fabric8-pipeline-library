@@ -13,9 +13,9 @@ def call(body) {
     sh "git config user.email ${gitEmail}"
     sh "git config user.name ${gitUserName}"
 
-    sh 'chmod 600 /root/.ssh-git/ssh-key'
-    sh 'chmod 600 /root/.ssh-git/ssh-key.pub'
-    sh 'chmod 700 /root/.ssh-git'
+    sh 'chmod 600 /home/jenkins/.ssh-git/ssh-key'
+    sh 'chmod 600 /home/jenkins/.ssh-git/ssh-key.pub'
+    sh 'chmod 700 /home/jenkins/.ssh-git'
 
     String npmToken = readFile '/home/jenkins/.npm-token/token'
     String ghToken = readFile '/home/jenkins/.apitoken/hub'

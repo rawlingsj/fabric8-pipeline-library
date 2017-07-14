@@ -20,12 +20,12 @@ def call(Map parameters = [:], body) {
                      envVars: [[key: 'TERM', value: 'dumb']]],
                     [name   : 'maven', image: "${mavenImage}", command: '/bin/sh -c', args: 'cat', ttyEnabled: true,  workingDir: '/home/jenkins/',
                      envVars: [
-                             [key: 'MAVEN_OPTS', value: '-Duser.home=/root/']]]
+                             [key: 'MAVEN_OPTS', value: '-Duser.home=/home/jenkins/']]]
             ],
             volumes: [
-                    secretVolume(secretName: 'jenkins-maven-settings', mountPath: '/root/.m2'),
-                    persistentVolumeClaim(claimName: 'jenkins-mvn-local-repo', mountPath: '/root/.mvnrepository'),
-                    secretVolume(secretName: 'gke-service-account', mountPath: '/root/home/.gke')
+                    secretVolume(secretName: 'jenkins-maven-settings', mountPath: '/home/jenkins/.m2'),
+                    persistentVolumeClaim(claimName: 'jenkins-mvn-local-repo', mountPath: '/home/jenkins/.mvnrepository'),
+                    secretVolume(secretName: 'gke-service-account', mountPath: '/home/jenkins/home/.gke')
             ]) {
         body()
     }

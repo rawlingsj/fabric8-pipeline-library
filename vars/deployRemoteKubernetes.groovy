@@ -8,7 +8,7 @@ def call(body) {
 
   container(name: 'clients') {
 
-    sh 'kubectl config set-credentials kube --username=\$(cat /root/.kc/user) --password=\$(cat /root/.kc/password)'
+    sh 'kubectl config set-credentials kube --username=\$(cat /home/jenkins/.kc/user) --password=\$(cat /home/jenkins/.kc/password)'
     sh "kubectl config set-cluster kube --insecure-skip-tls-verify=true --server=${config.url}"
     sh "kubectl config set-context kube --user=kube --namespace=${config.defaultNamespace} --cluster=kube"
     sh 'kubectl config use-context kube'

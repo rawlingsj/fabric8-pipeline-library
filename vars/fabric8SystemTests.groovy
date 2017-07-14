@@ -25,7 +25,7 @@ def call(body) {
     stage('Creating Cluster on Google Container Engine')
     container(name: 'clients') {
         try {
-            sh 'gcloud auth activate-service-account --key-file /root/home/.gke/config.json'
+            sh 'gcloud auth activate-service-account --key-file /home/jenkins/home/.gke/config.json'
             sh "gcloud container clusters create ${clusterName} --disk-size ${diskSize} --zone ${zone} --enable-cloud-logging --enable-cloud-monitoring --machine-type ${machineType} --num-nodes ${numberOfNodes}"
             sh "gcloud config set project ${project}"
             sh "gcloud config set compute/zone ${zone}"

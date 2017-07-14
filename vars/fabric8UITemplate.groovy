@@ -23,6 +23,8 @@ def call(Map parameters = [:], body) {
                         secretVolume(secretName: 'jenkins-docker-cfg', mountPath: '/home/jenkins/.docker'),
                         secretVolume(secretName: 'npm-npmrc', mountPath: '/home/jenkins/.npm-npmrc'),
                         secretVolume(secretName: 'npm-token', mountPath: '/home/jenkins/.npm-token'),
+                        secretVolume(secretName: 'jenkins-ssh-config', mountPath: '/home/jenkins/.ssh'),
+                        secretVolume(secretName: 'jenkins-git-ssh', mountPath: '/home/jenkins/.ssh-git'),
                         secretVolume(secretName: 'jenkins-hub-api-token', mountPath: '/home/jenkins/.apitoken')]) {
             body()
         }
@@ -37,6 +39,8 @@ def call(Map parameters = [:], body) {
                         secretVolume(secretName: 'jenkins-hub-api-token', mountPath: '/home/jenkins/.apitoken'),
                         secretVolume(secretName: 'npm-npmrc', mountPath: '/home/jenkins/.npm-npmrc'),
                         secretVolume(secretName: 'npm-token', mountPath: '/home/jenkins/.npm-token'),
+                        secretVolume(secretName: 'jenkins-ssh-config', mountPath: '/home/jenkins/.ssh'),
+                        secretVolume(secretName: 'jenkins-git-ssh', mountPath: '/home/jenkins/.ssh-git'),
                         hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock')],
                 envVars: [[key: 'DOCKER_HOST', value: 'unix:/var/run/docker.sock'], [key: 'DOCKER_CONFIG', value: '/home/jenkins/.docker/']]) {
             body()

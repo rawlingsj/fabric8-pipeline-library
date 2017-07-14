@@ -17,7 +17,7 @@ def call(Map parameters = [:], body) {
             containers: [
                     //[name: 'jnlp', image: "${jnlpImage}", args: '${computer.jnlpmac} ${computer.name}',  workingDir: '/home/jenkins/'],
                     [name: 'maven', image: "${mavenImage}", command: 'cat', ttyEnabled: true,
-                     envVars: [[key: 'MAVEN_OPTS', value: '-Duser.home=/root/']]],
+                     envVars: [[key: 'MAVEN_OPTS', value: '-Duser.home=/home/jenkins/']]],
 
                     [name   : 'clients', image: "${clientsImage}", command: 'cat', ttyEnabled: true,  workingDir: '/home/jenkins/',
                      envVars: [[key: 'TERM', value: 'dumb']]],
@@ -25,14 +25,14 @@ def call(Map parameters = [:], body) {
                     [name: 'docker', image: "${dockerImage}", command: 'cat', ttyEnabled: true,  workingDir: '/home/jenkins/',
                      envVars: [[key: 'DOCKER_CONFIG', value: '/home/jenkins/.docker/']]]
             ],
-            volumes: [secretVolume(secretName: 'jenkins-maven-settings', mountPath: '/root/.m2'),
-                      persistentVolumeClaim(claimName: 'jenkins-mvn-local-repo', mountPath: '/root/.mvnrepository'),
+            volumes: [secretVolume(secretName: 'jenkins-maven-settings', mountPath: '/home/jenkins/.m2'),
+                      persistentVolumeClaim(claimName: 'jenkins-mvn-local-repo', mountPath: '/home/jenkins/.mvnrepository'),
                       secretVolume(secretName: 'jenkins-docker-cfg', mountPath: '/home/jenkins/.docker'),
                       secretVolume(secretName: 'jenkins-release-gpg', mountPath: '/home/jenkins/.gnupg'),
                       secretVolume(secretName: 'jenkins-hub-api-token', mountPath: '/home/jenkins/.apitoken'),
-                      secretVolume(secretName: 'jenkins-ssh-config', mountPath: '/root/.ssh'),
-                      secretVolume(secretName: 'jenkins-git-ssh', mountPath: '/root/.ssh-git'),
-                      secretVolume(secretName: 'gke-service-account', mountPath: '/root/home/.gke'),
+                      secretVolume(secretName: 'jenkins-ssh-config', mountPath: '/home/jenkins/.ssh'),
+                      secretVolume(secretName: 'jenkins-git-ssh', mountPath: '/home/jenkins/.ssh-git'),
+                      secretVolume(secretName: 'gke-service-account', mountPath: '/home/jenkins/home/.gke'),
                       hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock')],
             envVars: [[key: 'DOCKER_HOST', value: 'unix:/var/run/docker.sock'], [key: 'DOCKER_CONFIG', value: '/home/jenkins/.docker/']]
     ) {
