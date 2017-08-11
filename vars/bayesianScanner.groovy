@@ -19,6 +19,12 @@ def call(body) {
                     if (response.success) {
                         utils.addAnnotationToBuild('fabric8.io/bayesian.analysisUrl', response.getAnalysisUrl())
                     } else {
+                        echo 'failed'
+                        echo 'try curl external address'
+                        sh 'curl -v https://recommender.api.openshift.io/api/v1'
+                        echo 'try curl internal address'
+                        sh 'curl -v https://bayesian-link'
+                        
                         error "Bayesian analysis failed ${response}"
                     }
                 }
