@@ -236,16 +236,12 @@ def findTagSha(OpenShiftClient client, String imageStreamName, String namespace)
 @NonCPS
 def addAnnotationToBuild(annotation, value) {
   def flow = new Fabric8Commands()
-  if (flow.isOpenShift()) {
-    def buildName = getValidOpenShiftBuildName()
-    echo "Adding annotation '${annotation}: ${value}' to Build ${buildName}"
-    OpenShiftClient oClient = new DefaultOpenShiftClient()
-    def usersNamespace = getUsersNamespace()
-    echo "looking for ${buildName} in namespace ${usersNamespace}"
-    oClient.builds().inNamespace(usersNamespace).withName(buildName).edit().editMetadata().addToAnnotations(annotation, value).endMetadata().done()
-  } else {
-    echo "Not running on openshift so skip adding annotation ${annotation}: value"
-  }
+  def buildName = getValidOpenShiftBuildName()
+  echo "Adding annotation '${annotation}: ${value}' to Build ${buildName}"
+  OpenShiftClient oClient = new DefaultOpenShiftClient()
+  def usersNamespace = getUsersNamespace()
+  echo "looking for ${buildName} in namespace ${usersNamespace}"
+  oClient.builds().inNamespace(usersNamespace).withName(buildName).edit().editMetadata().addToAnnotations(annotation, value).endMetadata().done()
 }
 
 @NonCPS
@@ -333,18 +329,14 @@ def getBranch(){
 @NonCPS
 def isValidBuildName(buildName){
   def flow = new Fabric8Commands()
-  if (flow.isOpenShift()) {
-    echo "Looking for matching Build ${buildName}"
-    OpenShiftClient oClient = new DefaultOpenShiftClient()
-    def usersNamespace = getUsersNamespace()
-    def build = oClient.builds().inNamespace(usersNamespace).withName(buildName).get()
-    if (build){
-      return true
-    }
-    return false
-  } else {
-    error "Not running on openshift so cannot lookup build names"
+  echo "Looking for matching Build ${buildName}"
+  OpenShiftClient oClient = new DefaultOpenShiftClient()
+  def usersNamespace = getUsersNamespace()
+  def build = oClient.builds().inNamespace(usersNamespace).withName(buildName).get()
+  if (build){
+    return true
   }
+  return false
 }
 
 @NonCPS
@@ -550,14 +542,13 @@ def getOpenShiftBuildName(){
   def  job = (WorkflowJob) activeInstance.getItemByFullName(env.JOB_NAME)
   def run = job.getBuildByNumber(Integer.parseInt(env.BUILD_NUMBER))
   def flow = new Fabric8Commands()
-  if (flow.isOpenShift()){
-    def clazz = Thread.currentThread().getContextClassLoader().loadClass("io.fabric8.jenkins.openshiftsync.BuildCause")
-    def cause = run.getCause(clazz)
-    if (cause != null) {
-      return cause.name
-    }
+
+  def clazz = Thread.currentThread().getContextClassLoader().loadClass("io.fabric8.jenkins.openshiftsync.BuildCause")
+  def cause = run.getCause(clazz)
+  if (cause != null) {
+    return cause.name
   }
-  return null
+  error 'No build name found from Job build cause'
 }
 
 return this

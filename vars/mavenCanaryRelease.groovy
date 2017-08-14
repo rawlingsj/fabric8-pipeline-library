@@ -13,7 +13,7 @@ def call(body) {
     def skipTests = config.skipTests ?: false
 
     def profile
-    if (flow.isOpenShift()) {
+    if (utils.supportsOpenShiftS2I()) {
         profile = '-P openshift'
     } else {
         profile = '-P kubernetes'
@@ -54,28 +54,24 @@ def call(body) {
     def s2iMode = utils.supportsOpenShiftS2I()
     echo "s2i mode: ${s2iMode}"
 
-    def registryHost = env.FABRIC8_DOCKER_REGISTRY_SERVICE_HOST
-    def registryPort = env.FABRIC8_DOCKER_REGISTRY_SERVICE_PORT
-
     if (!s2iMode) {
+        def registryHost = env.FABRIC8_DOCKER_REGISTRY_SERVICE_HOST
+        def registryPort = env.FABRIC8_DOCKER_REGISTRY_SERVICE_PORT
+        if (!registryHost || !registryPort) {
+            error "Missing env vars FABRIC8_DOCKER_REGISTRY_SERVICE_HOST=${registryHost} FABRIC8_DOCKER_REGISTRY_SERVICE_PORT=${registryPort}"
+        }
         if (flow.isSingleNode()) {
             echo 'Running on a single node, skipping docker push as not needed'
             def m = readMavenPom file: 'pom.xml'
             def groupId = m.groupId.split('\\.')
             def user = groupId[groupId.size() - 1].trim()
             def artifactId = m.artifactId
-            if (registryHost && registryPort) {
-                sh "docker tag ${user}/${artifactId}:${config.version} ${registryHost}:${registryPort}/${user}/${artifactId}:${config.version}"
-            } else {
-                echo "WARNING: cannot tag the docker image ${user}/${artifactId}:${config.version} as there is no FABRIC8_DOCKER_REGISTRY_SERVICE_HOST or FABRIC8_DOCKER_REGISTRY_SERVICE_PORT environment variable!"
-            }
+
+            sh "docker tag ${user}/${artifactId}:${config.version} ${registryHost}:${registryPort}/${user}/${artifactId}:${config.version}"
+
         } else {
-            if (registryHost && registryPort) {
-                retry(3) {
-                    sh "mvn fabric8:push -Ddocker.push.registry=${registryHost}:${registryPort}"
-                }
-            } else {
-                error "Cannot push the docker image ${user}/${artifactId}:${config.version} as there is no FABRIC8_DOCKER_REGISTRY_SERVICE_HOST or FABRIC8_DOCKER_REGISTRY_SERVICE_PORT environment variables\nTry run the fabric8-docker-registry?"
+            retry(3) {
+                sh "mvn fabric8:push -Ddocker.push.registry=${registryHost}:${registryPort}"
             }
         }
     }

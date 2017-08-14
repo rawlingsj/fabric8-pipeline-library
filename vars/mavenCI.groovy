@@ -28,7 +28,7 @@ def call(body) {
         def skipTests = config.skipTests ?: false
 
         def profile
-        if (flow.isOpenShift()) {
+        if (utils.supportsOpenShiftS2I()) {
             profile = '-P openshift'
         } else {
             profile = '-P kubernetes'
