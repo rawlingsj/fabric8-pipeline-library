@@ -15,6 +15,7 @@ def call(body) {
     def deploymentName = config.githubRepo
     def providerLabel = config.providerLabel ?: 'fabric8'
     def project = config.githubProject
+    def templateParameters = config.templateParameters
 
     def flow = new io.fabric8.Fabric8Commands()
     def utils = new io.fabric8.Utils()
@@ -27,7 +28,6 @@ def call(body) {
         }
 
         // get the latest released yaml
-
         def yamlReleaseVersion = flow.getReleaseVersionFromMavenMetadata("${mavenRepo}/maven-metadata.xml")
         yaml = flow.getUrlAsString("${mavenRepo}/${yamlReleaseVersion}/${deploymentName}-${yamlReleaseVersion}-openshift.yml")
         yaml = flow.swizzleImageName(yaml, originalImageName, newImageName)
@@ -38,10 +38,7 @@ def call(body) {
     }
     // cant use writeFile as we have long filename errors
     sh "echo '${yaml}' > snapshot.yml"
-    def template = false
-    if (yaml.contains('kind: Template')){
-        template = true
-    }
+
     container('clients') {
 
         try {
@@ -101,8 +98,11 @@ def call(body) {
             cd fabric8-ui && npm run build:prod
             '''
     */
+        if (templateParameters){
+            writeTemplateValuesToFile(templateParameters)
+        }
 
-        if (template){
+        if (templateParameters){
             sh "oc process -n ${openShiftProject} --param-file=./values.txt -f ./snapshot.yml | oc apply -n ${openShiftProject} -f -"
         } else {
             sh "oc apply -n ${openShiftProject} -f ./snapshot.yml"
@@ -124,4 +124,25 @@ def call(body) {
         }
         return sh(script: "oc get route ${deploymentName} -o jsonpath=\"{.spec.host}\" -n ${openShiftProject}", returnStdout: true).toString().trim()
     }
+}
+
+def writeTemplateValuesToFile(map){
+    if (map){
+        for (def p in mapToList(map)){
+            echo p.key
+            echo p.value
+            sh "echo ${p.key}=${p.value} >> ./values.txt"
+        }
+    }
+    map = null
+}
+
+// thanks to https://stackoverflow.com/questions/40159258/impossibility-to-iterate-over-a-map-using-groovy-within-jenkins-pipeline#
+@NonCPS
+def mapToList(depmap) {
+    def dlist = []
+    for (def entry2 in depmap) {
+        dlist.add(new java.util.AbstractMap.SimpleImmutableEntry(entry2.key, entry2.value))
+    }
+    dlist
 }
